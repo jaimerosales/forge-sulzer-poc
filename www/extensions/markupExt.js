@@ -4,7 +4,7 @@ function markup3d(viewer, options) {
 
     this.scale;
     this.particleCount = 20;
-    this.size = 50.0;
+    this.size = 40.0;
     this.particles;
     this.msgs = [];
     this.raycaster = new THREE.Raycaster;
@@ -13,7 +13,7 @@ function markup3d(viewer, options) {
     this.mouse = {x:0, y:0, button:0};
     this.raycaster = new THREE.Raycaster();
     this.camera = viewer.impl.camera;
-    this.raycaster.params.PointCloud.threshold = 150;
+    this.raycaster.params.PointCloud.threshold = 50;
 
 
     this.vertexShader = `
