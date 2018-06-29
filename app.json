@@ -1,7 +1,7 @@
 {
-  "name": "forge-parker-poc",
-  "description": "Autodesk Forge POC for Parker",
-  "repository": "https://github.com/jaimerosales/forge-parker-poc",
+  "name": "forge-sulzer-poc",
+  "description": "Autodesk Forge POC Sulzer",
+  "repository": "https://github.com/jaimerosales/forge-sulzer-poc",
   "logo": "https://avatars0.githubusercontent.com/u/8017462?v=3&s=200",
   "keywords": [
     "express",
