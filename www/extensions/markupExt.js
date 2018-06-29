@@ -4,7 +4,7 @@ function markup3d(viewer, options) {
 
     this.scale;
     this.particleCount = 20;
-    this.size = 40.0;
+    this.size = 100.0;
     this.particles;
     this.msgs = [];
     this.raycaster = new THREE.Raycaster;
@@ -13,7 +13,7 @@ function markup3d(viewer, options) {
     this.mouse = {x:0, y:0, button:0};
     this.raycaster = new THREE.Raycaster();
     this.camera = viewer.impl.camera;
-    this.raycaster.params.PointCloud.threshold = 50;
+    this.raycaster.params.PointCloud.threshold = 2;
 
 
     this.vertexShader = `
@@ -22,7 +22,7 @@ function markup3d(viewer, options) {
         void main() {
             vColor = color;
             vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-            gl_PointSize = size;
+            gl_PointSize = size * ( size / (length(mvPosition.xyz) + 1.0) );
             gl_Position = projectionMatrix * mvPosition;
         }
 	`

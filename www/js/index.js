@@ -21,29 +21,59 @@ var viewer2;
 var options = {
     env: 'AutodeskProduction',
     getAccessToken: getForgeToken,
-    documentId: 'urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6cGFya2VyLXBvYy9Gcm9udCUyMExvYWRlci5pYW0uemlw'
+    documentId: 'urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6c3VsemVyLXBvYy1hc3NlbWJseS9FWFBOLUFTTS1FNTIwJTIwdyUyMFJvdG9yLmlhbS56aXA'
 
 }
 
 var data1stview = {
     "Items": [{
+        "markupId": 0,
+        "x": -10007.7299498156492916,
+        "y": 2.9263527002787177,
+        "z": -1.0915325371984984,
+        icon: 0
+    }, {
         "markupId": 1,
-        "x": 1100.37674052735037833,
-        "y": -95.0107518497603,
-        "z": -402.620531023927,
-        "type": "BIMIQ_Warning"
+        "x": -7.7299498156492916,
+        "y": 2.9263527002787177,
+        "z": -1.0915325371984984,
+        "type": "RFI"
     }, {
         "markupId": 2,
-        "x": 201.95253612923999,
-        "y": 1843.3121015846427,
-        "z": 1050.1132431164415,
-        "type": "BIMIQ_Warning",
+        "x": -11.132244761986222,
+        "y": 2.9263527002787177,
+        "z": -1.0915325371984984,
+        "type": "RFI"
     }, {
         "markupId": 3,
-        "x": 403.0419596808389,
-        "y": -1947.9918734596254,
-        "z": 1228.7535747854722,
-        "type": "BIMIQ_Warning",
+        "x": -15.132244761986222,
+        "y": 2.9263527002787177,
+        "z": -1.0915325371984984,
+        "type": "RFI"
+    }, {
+        "markupId": 4,
+        "x": -19.132244761986222,
+        "y": 2.9263527002787177,
+        "z": -1.0915325371984984,
+        "type": "RFI"
+    }, {
+        "markupId": 5,
+        "x": -23.132244761986222,
+        "y": 2.9263527002787177,
+        "z": -1.0915325371984984,
+        "type": "RFI"
+    }, {
+        "markupId": 6,
+        "x": -26.28284723829211,
+        "y": 1.4598347969165424,
+        "z": -1.0915325371984984,
+        "type": "BIMIQ_Warning"
+    }, {
+        "markupId": 7,
+        "x": -3.28284723829211,
+        "y": 1.4598347969165424,
+        "z": -1.0915325371984984,
+        "type": "BIMIQ_Warning"
     }]
 } ;
 
@@ -81,30 +111,23 @@ function onDocumentLoadSuccess(doc) {
 
     window.addEventListener("onPointClick", function(e){
 
-        // document.getElementById("viewerDivs").classList.add("col-md-8")
-        // document.getElementById("threedviewer").classList.add("viewer1")
-
-        // viewer.resize();
-
-        if (e.detail === 1){
-            document.getElementById("myIframe").src = './parker-html/Engine/PowerShift%20(Hydraulic)%2010-Bolt%20Power%20Take-Off%20(PTO)%20-%20280%20Series%20_%20Parker%20NA.htm'
-            viewer.isolate(682)
+        if (e.detail === 7){
+            document.getElementById("myIframe").src = './sulzer-pdf/BUSH-MFG-LP.pdf';
+            viewer.isolate(569)
             viewer.fitToView();
-            loadViewer2("urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6cGFya2VyLXBvYy9lbmdpbmUub2JqLnppcA")
+            
         }
-
-        if (e.detail === 2){
-            document.getElementById("myIframe").src = './parker-html/Front/PowerShift%20(Hydraulic)%2010-Bolt%20Power%20Take-Off%20(PTO)%20-%20890%20Series%20_%20Parker%20NA.htm';
-            viewer.isolate(4598)
+        
+        if (e.detail === 8){
+            document.getElementById("myIframe").src = './sulzer-pdf/TBLT-MFG-00.pdf';
+            viewer.isolate(555)
             viewer.fitToView();
-            loadViewer2("urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6cGFya2VyLXBvYy9mcm9udC5vYmouemlw")
-        }
-
-        if (e.detail === 3){
-            document.getElementById("myIframe").src = './parker-html/Back/Aluminum%20Pumps%20–%20PGP505%20Series%20_%20Parker%20NA.htm';
-            viewer.isolate([3531, 3533])
+        } 
+        
+        if (e.detail == 6 || e.detail == 2 || e.detail == 3 || e.detail == 4 || e.detail == 5){
+            document.getElementById("myIframe").src = './sulzer-pdf/AMS 5732H_A286 Spec.pdf';
+            viewer.isolate([559, 561, 563, 565, 567])
             viewer.fitToView();
-            loadViewer2("urn:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6cGFya2VyLXBvYy9iYWNrLm9iai56aXA")
         }
 
     }, false);
@@ -115,9 +138,6 @@ function onDocumentLoadSuccess(doc) {
     //////////////////////////////////////////////////////////////////////
 
     viewer.start(svfUrl, modelOptions, onLoadModelSuccess, onLoadModelError);
-
-    //viewer.setBackgroundColor(35, 31, 32, 35, 31, 32);
-
 }
 
 
