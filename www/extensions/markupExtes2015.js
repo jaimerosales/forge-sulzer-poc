@@ -1,0 +1,133 @@
+"use strict";
+
+// MarkupExt.js
+function markup3d(viewer, options) {
+    Autodesk.Viewing.Extension.call(this, viewer, options);
+
+    this.scale;
+    this.particleCount = 20;
+    this.size = 100.0;
+    this.particles;
+    this.msgs = [];
+    this.raycaster = new THREE.Raycaster();
+    this.scene = viewer.impl.scene;
+    this.cursor = new THREE.Object3D(0, 0, 0);
+    this.mouse = { x: 0, y: 0, button: 0 };
+    this.raycaster = new THREE.Raycaster();
+    this.camera = viewer.impl.camera;
+    this.raycaster.params.PointCloud.threshold = 2;
+
+    this.vertexShader = "\n        uniform float size;\n        varying vec3 vColor;\n        void main() {\n            vColor = color;\n            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n            gl_PointSize = size * ( size / (length(mvPosition.xyz) + 1.0) );\n            gl_Position = projectionMatrix * mvPosition;\n        }\n\t";
+
+    this.fragmentShader = "\n        uniform sampler2D tex;\n        varying vec3 vColor;\n        void main() {\n            gl_FragColor = vec4( vColor.x, vColor.x, vColor.x, 1.0 );\n            gl_FragColor = gl_FragColor * texture2D(tex, vec2((gl_PointCoord.x+vColor.y*1.0)/4.0, 1.0-gl_PointCoord.y));\n            if (gl_FragColor.w < 0.5) discard;\n        }\n\t";
+}
+
+markup3d.prototype = Object.create(Autodesk.Viewing.Extension.prototype);
+markup3d.prototype.constructor = markup3d;
+
+// on mouse move event, check if ray hit with pointcloud, move selection cursor
+// https://stackoverflow.com/questions/28209645/raycasting-involving-individual-points-in-a-three-js-pointcloud
+markup3d.prototype.updateHoverCursor = function (event) {
+    if (!this.particles) return;
+    var x = event.clientX / $(".viewer1").width() * 2 - 1;
+    var y = -(event.clientY / $(".viewer1").height()) * 2 + 1;
+    var vector = new THREE.Vector3(x, y, 0.5).unproject(this.camera);
+    this.raycaster.set(this.camera.position, vector.sub(this.camera.position).normalize());
+    var nodes = this.raycaster.intersectObject(this.particles);
+    if (this.selectedIndex) {
+        this.geometry.colors[this.selectedIndex - 1].r = 1.0;
+        this.geometry.colorsNeedUpdate = true;
+        viewer.impl.invalidate(true);
+    }
+
+    this.selectedIndex = nodes.length == 0 ? 0 : nodes[0].index + 1;
+    if (this.selectedIndex) {
+        this.geometry.colors[this.selectedIndex - 1].r = 2.0;
+    }
+};
+
+markup3d.prototype.load = function () {
+
+    this.initPointCloud = function () {
+        if (this.particles) this.scene.remove(this.particles);else {
+            // load the spriteSheet of textures
+            var texture = THREE.ImageUtils.loadTexture("./images/Issues.png");
+            this.material = new THREE.ShaderMaterial({
+                vertexColors: THREE.VertexColors,
+                fragmentShader: this.fragmentShader,
+                vertexShader: this.vertexShader,
+                depthWrite: true,
+                depthTest: true,
+                uniforms: {
+                    size: { type: "f", value: this.size },
+                    tex: { type: "t", value: texture }
+                }
+            });
+        }
+        var offset = viewer.model.getData().globalOffset;
+        this.particles = new THREE.PointCloud(this.geometry, this.material);
+        this.particles.position.sub(offset);
+        this.scene.add(this.particles);
+    };
+
+    // Load new DataPoints via Event Message
+    this.addMarkup = function (data) {
+        var _this = this;
+
+        this.msgs = data;
+        this.geometry = new THREE.Geometry();
+        var types = ["Issue", "BIMIQ_Warning", "RFI", "BIMIQ_Hazard"];
+
+        data.map(function (item) {
+            var point = new THREE.Vector3(item.x, item.y, item.z);
+            _this.geometry.vertices.push(point);
+            var type = types.indexOf(item.type);
+            _this.geometry.colors.push(new THREE.Color(1.0, type, 0));
+        });
+
+        // TEST OF RANDOM 100 Points
+        // let i;
+        // for (i=0;i<100;i++) {
+        //     point = (new THREE.Vector3(Math.random()*10000-5000, Math.random()*10000-5000, Math.random()*10000-5000));
+        //     this.geometry.vertices.push(point);
+        //     this.geometry.colors.push(new THREE.Color(1.0,2,0));
+        // }
+
+
+        this.initPointCloud();
+    };
+
+    var self = this;
+    window.addEventListener("newData", function (e) {
+        self.addMarkup(e.detail.Items);
+    }, false);
+
+    // Mouse Event handlers
+    // Dispatch Message when a point is clicked
+    this.addMouseListeners = function () {
+        function onDocumentMouseMove(event) {
+            if (event.button !== 0) return;
+            self.updateHoverCursor(event);
+        }
+        function onDocumentMouseClick() {
+            if (!self.selectedIndex) return;
+            window.dispatchEvent(new CustomEvent('onPointClick', { 'detail': self.selectedIndex }));
+            viewer.clearSelection();
+        }
+        function onDocumentTouchClick(t) {
+            self.updateHoverCursor(t.changedTouches[0]);
+            onDocumentMouseClick();
+        }
+        document.addEventListener('click', onDocumentMouseClick, false);
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        document.addEventListener('touchend', onDocumentTouchClick, false);
+    };
+    this.addMouseListeners();
+    return true;
+};
+
+markup3d.prototype.unload = function () {
+    return true;
+};
+
+Autodesk.Viewing.theExtensionManager.registerExtension('markup3d', markup3d);
